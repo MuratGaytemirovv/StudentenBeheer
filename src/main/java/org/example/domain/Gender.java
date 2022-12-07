@@ -1,2 +1,5 @@
-package org.example.domain;public enum Gender {
+package org.example.domain;
+
+public enum Gender {
+    M,V
 }

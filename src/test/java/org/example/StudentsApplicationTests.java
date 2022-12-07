@@ -1,2 +1,11 @@
-package org.example;public class StudentsApplicationTests {
+package org.example;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class StudentsApplicationTests {
+    @Test
+    void contextLoads() {
+    }
 }
