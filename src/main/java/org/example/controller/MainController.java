@@ -47,7 +47,7 @@ public class MainController {
         return new StudentResponse(studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException(studentId.toString(), "student")));
     }
 
-    @GetMapping("/{StudentId}/courses")
+    @GetMapping("/{studentId}/courses")
     public StudentWithCoursesResponse retrieveStudentByIdWithCourses(@PathVariable(name = "studentId") Long studentId) {
         return new StudentWithCoursesResponse(studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException(studentId.toString(), "student")));
     }
