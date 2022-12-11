@@ -31,7 +31,7 @@ public class Student {
     private Gender gender;
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "student_courses",
             joinColumns = {@JoinColumn(name="student_id")},
             inverseJoinColumns = {@JoinColumn(name="course_id")})
