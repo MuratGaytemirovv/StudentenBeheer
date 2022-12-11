@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(StudentController.class)
-class MainControllerTest {
+class StudentControllerTest {
 
     private final String baseUrl = "/students";
 
