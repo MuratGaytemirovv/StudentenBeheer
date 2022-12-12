@@ -10,6 +10,8 @@ import org.example.request.CourseRequest;
 import org.example.request.StudentRequest;
 import org.example.response.StudentResponse;
 import org.example.response.StudentWithCoursesResponse;
+import org.example.service.StudentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,115 +31,63 @@ import java.net.URI;
 @CrossOrigin("*")
 public class StudentController {
 
-    private final StudentRepository studentRepository;
+
+    private final StudentService studentService;
     private final CourseRepository courseRepository;
 
-    public StudentController(StudentRepository studentRepository, CourseRepository courseRepository) {
-        this.studentRepository = studentRepository;
+    public StudentController(StudentService studentService, CourseRepository courseRepository) {
+        this.studentService = studentService;
         this.courseRepository = courseRepository;
     }
 
     @GetMapping
     public Page<StudentResponse> findAllStudents(Pageable pageable){
-        return studentRepository.findAll(pageable).map(StudentResponse::new);
+        return studentService.findAllStudents(pageable);
     }
-
     @GetMapping("/{studentId}")
     public StudentResponse retrieveStudentById(@PathVariable(name = "studentId") Long studentId) {
-        return new StudentResponse(studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException(studentId.toString(), "student")));
+        return studentService.retrieveStudentById(studentId);
     }
 
     @GetMapping("/{studentId}/courses")
     public StudentWithCoursesResponse retrieveStudentByIdWithCourses(@PathVariable(name = "studentId") Long studentId) {
-        return new StudentWithCoursesResponse(studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException(studentId.toString(), "student")));
+        return studentService.retrieveStudentByIdWithCourses(studentId);
     }
-
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Object> createStudent(@RequestBody @Valid StudentRequest studentRequest) {
-        Student student = new Student(
-                studentRequest.getFirstName(),
-                studentRequest.getLastName(),
-                studentRequest.getBirthDate(),
-                Gender.valueOf(studentRequest.getGender())
-        );
-        student.setGsmNumber(studentRequest.getGsmNumber());
-        Student l = studentRepository.save(student);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(l.getId())
-                .toUri();
-
-        return ResponseEntity.created(location).build();
+        return studentService.createStudent(studentRequest);
     }
 
     @PutMapping("/{studentId}")
     public StudentResponse putStudent(@PathVariable(name = "studentId") Long studentId,
-                                    @RequestBody @Valid StudentRequest studentRequest) {
-        Student student = studentRepository.findById(Long.parseLong(studentId.toString())).orElseThrow(() -> new ResourceNotFoundException(studentId.toString(), "student"));
-
-        student.setFirstName(studentRequest.getFirstName());
-        student.setLastName(studentRequest.getLastName());
-        student.setBirthDate(studentRequest.getBirthDate());
-        student.setGender(Gender.valueOf(studentRequest.getGender()));
-        student.setGsmNumber(studentRequest.getGsmNumber());
-
-        return new StudentResponse(studentRepository.save(student));
+                                      @RequestBody @Valid StudentRequest studentRequest) {
+        return studentService.putStudent(studentId,studentRequest);
     }
-
     @PatchMapping("/{studentId}")
     public StudentResponse patchStudent(@PathVariable("studentId") Long studentId,
-                                      @RequestBody StudentRequest StudentRequest) {
-        Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException(studentId.toString(), "student"));
-        if (StudentRequest.getFirstName() != null) {
-            student.setFirstName(StudentRequest.getFirstName());
-        }
-        if (StudentRequest.getLastName() != null) {
-            student.setLastName(StudentRequest.getLastName());
-        }
-        if (StudentRequest.getBirthDate() != null) {
-            student.setBirthDate(StudentRequest.getBirthDate());
-        }
-        if (StudentRequest.getGender() != null) {
-            student.setGender(Gender.valueOf(StudentRequest.getGender()));
-        }
-        if (StudentRequest.getGsmNumber() != null) {
-            student.setGsmNumber(StudentRequest.getGsmNumber());
-        }
-
-        return new StudentResponse(studentRepository.save(student));
+                                        @RequestBody StudentRequest studentRequest) {
+        return studentService.patchStudent(studentId,studentRequest);
     }
-
     @DeleteMapping("/{studentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteStudent(@PathVariable("studentId") Long studentId) {
-        Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException(studentId.toString(), "student"));
-
-        try {
-            studentRepository.deleteById(studentId);
-        } catch (EmptyResultDataAccessException e) {
-            // fine
-        }
+       studentService.deleteStudent(studentId);
     }
 
     @PostMapping("/{studentId}/courses")
     @ResponseStatus(HttpStatus.CREATED)
     public void addCourseToStudent(@PathVariable(name = "studentId") Long studentId, @RequestBody @Valid CourseRequest courseRequest){
-        Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException(studentId.toString(), "student"));
-        Course course = courseRepository.findById(courseRequest.getId()).orElseThrow(() -> new ResourceNotFoundException(courseRequest.getId().toString(), "course"));
-        student.addCourse(course);
-        studentRepository.save(student);
+        studentService.addCourseToStudent(studentId,courseRequest);
     }
+
 
     @DeleteMapping("/{studentId}/courses/{courseId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCourseOfStudent(@PathVariable(name = "studentId") Long studentId,
                                      @PathVariable(name = "courseId") Long courseId) {
-        Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException(studentId.toString(), "student"));
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new ResourceNotFoundException(courseId.toString(), "course"));
-        student.removeCourse(course);
-        studentRepository.save(student);
+        studentService.deleteCourseOfStudent(studentId,courseId);
     }
 
 
