@@ -7,6 +7,7 @@ import org.example.domain.Student;
 import org.example.repository.CourseRepository;
 import org.example.repository.StudentRepository;
 import org.example.request.StudentRequest;
+import org.example.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(StudentController.class)
-class StudentControllerTest {
+@WebMvcTest(StudentService.class)
+class StudentServiceTest {
 
     private final String baseUrl = "/students";
 
