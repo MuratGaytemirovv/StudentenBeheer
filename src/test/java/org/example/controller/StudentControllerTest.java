@@ -10,6 +10,8 @@ import org.example.request.StudentRequest;
 import org.example.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,6 +19,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -32,15 +37,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(StudentService.class)
-class StudentServiceTest {
+@RunWith(SpringRunner.class)
+@WebMvcTest(StudentController.class)
+class StudentControllerTest {
 
-    private final String baseUrl = "/students";
+    private final String baseUrl = "/private/students";
 
-    @MockBean
-    private StudentRepository studentRepository;
+
+
+
+
     @MockBean
     private CourseRepository courseRepository;
+
+    @MockBean
+    private StudentService studentService;
 
     @Autowired
     private MockMvc mvc;
@@ -71,30 +82,39 @@ class StudentServiceTest {
         }
     }
 
+
+    @WithMockUser(value = "spring")
+    @Test
+    public void givenAuthRequestOnPrivateService_shouldSucceedWith200() throws Exception {
+        mvc.perform(get(baseUrl).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+    @WithMockUser("spring")
     @Test
     void findAllCourses() throws Exception {
         Page page = new PageImpl(students);
         PageRequest of = PageRequest.of(0, 20);
-        when(studentRepository.findAll(of)).thenReturn(page);
+        when(studentService.findAllStudents(of)).thenReturn(page);
 
-        mvc.perform(get(baseUrl))
-                .andDo(print())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get(baseUrl)).andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content", hasSize(3)))
-                .andExpect(jsonPath("$.content[0].name", equalTo("Johnson John")))
-                .andExpect(jsonPath("$.content[1].name", equalTo("Michaelson Mark")))
-                .andExpect(jsonPath("$.content[2].name", equalTo("Cheng Mei")));
+                .andExpect(jsonPath("$.content[0].firstName", equalTo("John")))
+                .andExpect(jsonPath("$.content[1].firstName", equalTo("Mark")))
+                .andExpect(jsonPath("$.content[2].firstName", equalTo("Mei")));
+
 
     }
 
+    /*
+    @WithMockUser("user")
     @Test
     void findById() throws Exception {
         Student john = students.get(0);
         when(studentRepository.findById(22L)).thenReturn(Optional.of(john));
-        mvc.perform(get(baseUrl+"/22"))
+        mvc.perform(get(baseUrl+"/22").contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", equalTo("Johnson John")))
                 .andExpect(jsonPath("$.birthDate", equalTo("2002-09-06")))
@@ -235,7 +255,7 @@ class StudentServiceTest {
         mvc.perform(delete(baseUrl+"/"+studentId))
                 .andExpect(status().isNotFound());
 
-    }
+    }*/
 
 
 }

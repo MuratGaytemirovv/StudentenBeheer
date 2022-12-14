@@ -28,17 +28,17 @@ import java.net.URI;
 
 
 @RestController
-@RequestMapping("/students")
+@RequestMapping("/private/students")
 @CrossOrigin("*")
 public class StudentController {
 
 
-    private final StudentService studentService;
-    private final CourseRepository courseRepository;
 
-    public StudentController(StudentService studentService, CourseRepository courseRepository) {
+    private final StudentService studentService;
+
+
+    public StudentController(StudentService studentService) {
         this.studentService = studentService;
-        this.courseRepository = courseRepository;
     }
     @Operation(summary = "Get all students")
     @GetMapping

@@ -26,10 +26,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security:2.7.5'
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
     implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.6.9'
+    testImplementation 'net.minidev:json-smart:2.4.7'
+    testImplementation 'net.minidev:asm:1.0.2'
 
 
     implementation 'com.h2database:h2:2.1.210'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+    testImplementation 'org.springframework.security:spring-security-test:5.7.5'
+    testImplementation 'junit:junit:4.13.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
 }
 
